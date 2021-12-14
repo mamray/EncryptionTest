@@ -58,6 +58,7 @@ namespace EncryptionService
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/health");
             });
+
             app.UseResponseCompression();
         }
     }
