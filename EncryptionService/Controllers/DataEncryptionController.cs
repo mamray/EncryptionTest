@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using EncryptionService.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
+using EncryptionService.Core.Interfaces;
 
 namespace EncryptionService.Controllers
 {
@@ -29,12 +30,12 @@ namespace EncryptionService.Controllers
         {
             try
             {
-                var alarm = await _encryptor.EncryptData(data);
-                return Ok(alarm);
+                var result = await _encryptor.EncryptData(data);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.StackTrace);
+                _logger.LogError(ex, "Encryption failed");
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -43,16 +44,34 @@ namespace EncryptionService.Controllers
         /// Decrypts data
         /// </summary>
         [HttpGet("decrypt")]
-        public async Task<IActionResult> GetDecryptedDataAsync([FromQuery] string data)
+        public async Task<IActionResult> GetDecryptedDataAsync([FromQuery] string data, [FromQuery] int keyDraining = 0)
         {
             try
             {
-                var alarm = await _encryptor.DecryptData(data);
-                return Ok(alarm);
+                var result = await _encryptor.DecryptData(data, keyDraining);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.StackTrace);
+                _logger.LogError(ex, "Decryption failed");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        /// <summary>
+        /// Decrypts data
+        /// </summary>
+        [HttpGet("rotate-key")]
+        public async Task<IActionResult> RotateKey()
+        {
+            try
+            {
+                await _encryptor.RotateKey();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Key rotation failed");
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

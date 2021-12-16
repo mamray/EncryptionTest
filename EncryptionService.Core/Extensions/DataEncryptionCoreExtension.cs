@@ -10,6 +10,7 @@ namespace EncryptionService.Core.Extensions
     {
         public static IServiceCollection AddDataEncryptionCore(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSingleton<IKeyStorage, KeyStorage>();
             services.AddTransient<IDataEncryptionService, DataEncryptioService>();            
             return services;
         }
